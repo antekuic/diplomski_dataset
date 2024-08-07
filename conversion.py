@@ -141,7 +141,7 @@ def create_data_yaml(output_path, train_dir, val_dir, class_names):
     }
     
     with open(output_path, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False)
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
 # Main execution
 coco_json_path = '/content/dataset/annotations/instances_Train.json'
