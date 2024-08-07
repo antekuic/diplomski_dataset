@@ -26,13 +26,16 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
     categories = {cat['id']: cat['name'] for cat in coco_data['categories']}
     category_names = [categories[cat_id] for cat_id in sorted(categories.keys())]
 
-    image_ids = list(images_info.keys())
-    random.shuffle(image_ids)
+    all_image_ids = list(images_info.keys())
+    random.shuffle(all_image_ids)
     
     # Select validation images
-    val_image_ids = set(image_ids[:val_count])
-    train_image_ids = set(image_ids[val_count:])
+    val_image_ids = set(all_image_ids[:val_count])
+    train_image_ids = set(all_image_ids[val_count:])
 
+    # Dictionary to track image and label file paths for validation
+    val_image_files = set()
+    
     for ann in coco_data['annotations']:
         image_id = ann['image_id']
         img_info = images_info.get(image_id)
@@ -66,6 +69,7 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
         label_filename = Path(img_filename).stem + '.txt'
         if image_id in val_image_ids:
             label_file_path = labels_val_dir / label_filename
+            val_image_files.add(img_filename)  # Track validation image files
         else:
             label_file_path = labels_train_dir / label_filename
         
@@ -88,7 +92,45 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
                 copyfile(src_img_path, dest_img_path)
             except IOError as e:
                 print(f"Error copying file {src_img_path} to {dest_img_path}: {e}")
-    
+
+    # At the end, move additional random images from train to val
+    remaining_image_files = list(train_image_ids)
+    random.shuffle(remaining_image_files)
+    additional_val_image_files = set(remaining_image_files[:val_count])
+
+    for img_id in additional_val_image_files:
+        img_info = images_info.get(img_id)
+        
+        if img_info is None:
+            print(f"Warning: Image ID {img_id} not found in images_info.")
+            continue
+        
+        img_filename = img_info['file_name']
+        src_img_path = images_train_dir / img_filename
+        dest_img_path = images_val_dir / img_filename
+
+        if not src_img_path.exists():
+            print(f"Warning: Source image file {src_img_path} does not exist.")
+            continue
+
+        if not dest_img_path.exists():
+            try:
+                copyfile(src_img_path, dest_img_path)
+            except IOError as e:
+                print(f"Error copying file {src_img_path} to {dest_img_path}: {e}")
+
+        # Move the corresponding label file
+        label_filename = Path(img_filename).stem + '.txt'
+        src_label_path = labels_train_dir / label_filename
+        dest_label_path = labels_val_dir / label_filename
+
+        if src_label_path.exists():
+            try:
+                copyfile(src_label_path, dest_label_path)
+                src_label_path.unlink()  # Remove the original label file
+            except IOError as e:
+                print(f"Error copying label file {src_label_path} to {dest_label_path}: {e}")
+
     return category_names
 
 def create_data_yaml(output_path, train_dir, val_dir, class_names):
