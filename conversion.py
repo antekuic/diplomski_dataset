@@ -93,7 +93,7 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
             except IOError as e:
                 print(f"Error copying file {src_img_path} to {dest_img_path}: {e}")
 
-    # At the end, move additional random images from train to val
+    # Move additional random images from train to val
     remaining_image_files = list(train_image_ids)
     random.shuffle(remaining_image_files)
     additional_val_image_files = set(remaining_image_files[:val_count])
@@ -141,7 +141,7 @@ def create_data_yaml(output_path, train_dir, val_dir, class_names):
     }
     
     with open(output_path, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False, explicit_start=True)
 
 # Main execution
 coco_json_path = '/content/dataset/annotations/instances_Train.json'
