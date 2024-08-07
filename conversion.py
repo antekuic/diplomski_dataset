@@ -142,8 +142,7 @@ def create_data_yaml(output_path, train_dir, val_dir, path, category_dict):
         'train': str(train_dir),
         'val': str(val_dir),
         'nc': len(class_names),
-        'names': class_names,
-        'id_names': id_names
+        'names': id_names
     }
     
     with open(output_path, 'w') as f:
