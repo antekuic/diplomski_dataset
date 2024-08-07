@@ -130,14 +130,20 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
             except IOError as e:
                 print(f"Error moving label file {src_label_path} to {dest_label_path}: {e}")
 
-    return category_names
+    return categories
 
-def create_data_yaml(output_path, train_dir, val_dir, class_names):
+def create_data_yaml(output_path, train_dir, val_dir, path, category_dict):
+    # Convert category_dict to list of names
+    class_names = [name for id, name in sorted(category_dict.items())]
+    id_names = {id: name for id, name in sorted(category_dict.items())}
+    
     data = {
+        'path': str(path),
         'train': str(train_dir),
         'val': str(val_dir),
         'nc': len(class_names),
-        'names': class_names
+        'names': class_names,
+        'id_names': id_names
     }
     
     with open(output_path, 'w') as f:
@@ -149,9 +155,9 @@ output_dir = '/content/dataset/yolov8_dataset'
 train_dir = '/content/dataset/yolov8_dataset/images/train'
 val_dir = '/content/dataset/yolov8_dataset/images/val'
 
-# Convert dataset and get class names
-class_names = convert_coco_to_yolo(coco_json_path, output_dir, val_count=5)
+# Convert dataset and get category info
+category_dict = convert_coco_to_yolo(coco_json_path, output_dir, val_count=5)
 
 # Create data.yaml file
 output_yaml_path = Path(output_dir) / 'data.yaml'
-create_data_yaml(output_yaml_path, train_dir, val_dir, class_names)
+create_data_yaml(output_yaml_path, train_dir, val_dir, output_dir, category_dict)
