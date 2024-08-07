@@ -2,7 +2,7 @@ import os
 import json
 import random
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile, move
 import yaml
 
 def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
@@ -29,7 +29,7 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
     all_image_ids = list(images_info.keys())
     random.shuffle(all_image_ids)
     
-    # Select validation images
+    # Select initial validation images
     val_image_ids = set(all_image_ids[:val_count])
     train_image_ids = set(all_image_ids[val_count:])
 
@@ -115,9 +115,9 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
 
         if not dest_img_path.exists():
             try:
-                copyfile(src_img_path, dest_img_path)
+                move(src_img_path, dest_img_path)  # Move the image file
             except IOError as e:
-                print(f"Error copying file {src_img_path} to {dest_img_path}: {e}")
+                print(f"Error moving file {src_img_path} to {dest_img_path}: {e}")
 
         # Move the corresponding label file
         label_filename = Path(img_filename).stem + '.txt'
@@ -126,10 +126,9 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
 
         if src_label_path.exists():
             try:
-                copyfile(src_label_path, dest_label_path)
-                src_label_path.unlink()  # Remove the original label file
+                move(src_label_path, dest_label_path)  # Move the label file
             except IOError as e:
-                print(f"Error copying label file {src_label_path} to {dest_label_path}: {e}")
+                print(f"Error moving label file {src_label_path} to {dest_label_path}: {e}")
 
     return category_names
 
