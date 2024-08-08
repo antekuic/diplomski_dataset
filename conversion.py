@@ -135,7 +135,7 @@ def convert_coco_to_yolo(coco_json_path, output_dir, val_count=5):
 def create_data_yaml(output_path, train_dir, val_dir, path, category_dict):
     # Convert category_dict to list of names
     class_names = [name for id, name in sorted(category_dict.items())]
-    id_names = {id: name for id, name in sorted(category_dict.items())}
+    id_names = {id - 1: name for id, name in sorted(category_dict.items())}
     
     data = {
         'path': str(path),
