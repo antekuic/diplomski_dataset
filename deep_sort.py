@@ -113,8 +113,8 @@ while True:
                 iou = bbox_iou(track_bbox, yolo_bbox)
                 if iou > best_iou:
                     best_iou = iou
-                    best_class = class_names[detections[i][2]]
-            track_class_map[track_id] = best_class if best_class != -1 else "Unknown"
+                    best_class = detections[i][2]
+            track_class_map[track_id] = class_names[best_class] if best_class != -1 else "Unknown"
         
         class_name = track_class_map[track_id]
         x1, y1, x2, y2 = map(int, track.to_ltrb())
