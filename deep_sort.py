@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description="YOLOv8 i DEEP SORT praćenje")
 parser.add_argument('--model', type=str, required=True, help="Putanja do YOLOv8 modela")
 parser.add_argument('--video', type=str, required=True, help="Putanja do video datoteke")
 parser.add_argument('--output', type=str, default='output_video.mp4', help="Putanja do izlaznog video zapisa")
+parser.add_argument('--min_confidence', type=float, default=0.5, help="Minimalna pouzdanost (confidence) za detekcije") 
 args = parser.parse_args()
 
 # Provjera da li video datoteka postoji
@@ -92,8 +93,9 @@ while True:
             print("Neispravan format detekcija.")
             continue
         
-        detections.append(([x1, y1, x2-x1, y2-y1], conf, int(cls) if cls != -1 else -1))
-        yolo_detections.append([x1, y1, x2, y2])
+        if conf >= args.min_confidence:
+          detections.append(([x1, y1, x2-x1, y2-y1], conf, int(cls) if cls != -1 else -1))
+          yolo_detections.append([x1, y1, x2, y2])
 
     # Praćenje pomoću DEEP SORT-a
     tracks = tracker.update_tracks(detections, frame=frame)
