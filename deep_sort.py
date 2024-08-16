@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(description="YOLOv8 i DEEP SORT praćenje")
 parser.add_argument('--model', type=str, required=True, help="Putanja do YOLOv8 modela")
 parser.add_argument('--video', type=str, required=True, help="Putanja do video datoteke")
 parser.add_argument('--output', type=str, default='output_video.mp4', help="Putanja do izlaznog video zapisa")
-parser.add_argument('--min_confidence', type=float, default=0.5, help="Minimalna pouzdanost (confidence) za detekcije") 
+parser.add_argument('--min_confidence', type=float, default=0.7, help="Minimalna pouzdanost (confidence) za detekcije") 
 args = parser.parse_args()
 
 # Provjera da li video datoteka postoji
